@@ -9,6 +9,9 @@ public class Song {
     private Long mAlbumId;
     private String mArtistId;
 
+    public Song() {
+    }
+
     public Song(String filePath) {
         mFilePath = filePath;
     }

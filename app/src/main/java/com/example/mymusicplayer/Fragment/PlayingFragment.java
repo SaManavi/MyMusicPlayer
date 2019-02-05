@@ -1,6 +1,7 @@
 package com.example.mymusicplayer.Fragment;
 
 
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,9 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.example.mymusicplayer.Activity.Main2Activity;
 import com.example.mymusicplayer.Model.Song;
 import com.example.mymusicplayer.Model.SongRepository;
 import com.example.mymusicplayer.R;
@@ -37,10 +40,12 @@ public class PlayingFragment extends Fragment {
     private TextView mEndTime, mStartTime;
     private ImageButton Btn_forward, Btn_play, Btn_backward, Btn_next, Btn_previous;
     private MediaPlayer mediaPlayer;
+    private ImageView mPlayingIcon;
 
     private Timer timer;
     private String file;
     private Song mCurrentSong;
+    private int mCurrentSongPosition;
 
     public static PlayingFragment newInstance() {
 
@@ -70,7 +75,7 @@ public class PlayingFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         file=getArguments().getString(ARG_SONG_filePath);
-//        mCurrentSong= SongRepository.getInstance(getActivity()).
+        mCurrentSong= SongRepository.getInstance(getActivity()).getSongByPathFile(file);
     }
 
     @Override
@@ -80,6 +85,23 @@ public class PlayingFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_playing, container, false);
         DefiningComponents(v);
         setUpMusicPlayer();
+
+        mPlayingIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myInt= Main2Activity.newIntent(getActivity(),file);
+                startActivity(myInt);
+
+
+
+// FragmentManager fm=getFragmentManager();
+//                fm.beginTransaction()
+//                        .replace(R.id.full_container, FullPlayingFragment.newInstance(mCurrentSong.getFilePath(),mCurrentSongPosition))
+//                        .commit();
+
+
+            }
+        });
 
         return v;
     }
@@ -94,9 +116,11 @@ public class PlayingFragment extends Fragment {
         Btn_backward = v.findViewById(R.id.Btn_backward);
         Btn_next = v.findViewById(R.id.Btn_next);
         Btn_previous = v.findViewById(R.id.Btn_previous);
+        mPlayingIcon =v.findViewById(R.id.imageView_playing);
+        mPlayingIcon.setImageBitmap(SongRepository.getInstance(getActivity()).getSongImage(mCurrentSong.getAlbumId()));
+
 
     }
-
 
     void setUpMusicPlayer() {
         mediaPlayer = new MediaPlayer();
@@ -121,8 +145,7 @@ public class PlayingFragment extends Fragment {
 
     }
 
-    void playMusic()
-    {
+    void playMusic(){
         Btn_play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -150,8 +173,7 @@ public class PlayingFragment extends Fragment {
 
     }
 
-    void backAndForward()
-    {
+    void backAndForward(){
         Btn_backward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -194,16 +216,12 @@ public class PlayingFragment extends Fragment {
 
     }
 
-    private String defineTime(long progress)
-    {
+    private String defineTime(long progress){
         int sec=(int) progress / 1000;
         int min=sec / 60;
         sec %= 60;
         return String.format(Locale.ENGLISH,"%02d",min) + ":" + String.format(Locale.ENGLISH,"%02d",sec);
     }
-
-
-
 
     public class  timertask extends TimerTask{
                 @Override

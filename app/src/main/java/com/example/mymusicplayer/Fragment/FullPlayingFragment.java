@@ -8,13 +8,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.mymusicplayer.Model.Song;
+import com.example.mymusicplayer.Model.SongRepository;
 import com.example.mymusicplayer.R;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,24 +32,32 @@ import androidx.fragment.app.Fragment;
 public class FullPlayingFragment extends Fragment {
 
     private static String ARG_SONG_filePath ="com.example.mymusicplayer.file_path_Of_music";
+    private static String ARG_SONG_POSITION="com.example.mymusicplayer.Song Position";
     private SeekBar seekbar;
     private TextView mEndTime, mStartTime;
     private ImageButton Btn_forward, Btn_play, Btn_backward, Btn_next, Btn_previous;
     private MediaPlayer mediaPlayer;
 
     private Timer timer;
-    private String file;
+    private String mSongPath;
     private Song mCurrentSong;
+    private Integer mSongPosition;
+    private ImageView mFullImageView;
+    private TextView mTitle;
+    private List<Song> playList;
 
 
     public FullPlayingFragment() {
         // Required empty public constructor
     }
 
+
     public static FullPlayingFragment newInstance(String filePath) {
 
         Bundle args = new Bundle();
         args.putString(ARG_SONG_filePath,filePath);
+//        args.putInt(ARG_SONG_POSITION,position);
+
 
         FullPlayingFragment fragment = new FullPlayingFragment();
         fragment.setArguments(args);
@@ -57,14 +68,16 @@ public class FullPlayingFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        file=getArguments().getString(ARG_SONG_filePath);
+        mSongPath =getArguments().getString(ARG_SONG_filePath);
+//        mSongPosition=getArguments().getInt(ARG_SONG_POSITION);
+        mCurrentSong= SongRepository.getInstance(getActivity()).getSongByPathFile(mSongPath);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_playing, container, false);
+        View v = inflater.inflate(R.layout.fragment_full_playing, container, false);
         DefiningComponents(v);
         setUpMusicPlayer();
 
@@ -81,6 +94,11 @@ public class FullPlayingFragment extends Fragment {
         Btn_backward = v.findViewById(R.id.Btn_backward);
         Btn_next = v.findViewById(R.id.Btn_next);
         Btn_previous = v.findViewById(R.id.Btn_previous);
+        mFullImageView=v.findViewById(R.id.full_image_View);
+        mFullImageView.setImageBitmap(SongRepository.getInstance(getActivity()).getSongImage(mCurrentSong.getAlbumId()));
+        mTitle=v.findViewById(R.id.title_of_song);
+        mTitle.setText(mCurrentSong.getSongName()+" - "+mCurrentSong.getArtistName()+" - "+mCurrentSong.getAlbumName());
+
 
     }
 
@@ -89,8 +107,9 @@ public class FullPlayingFragment extends Fragment {
         mediaPlayer = new MediaPlayer();
 
         try {
-//            mediaPlayer.setDataSource(getActivity(), Uri.parse(mCurrentSong.getFilePath()));
-            mediaPlayer.setDataSource(getActivity(), Uri.parse(file));
+            mediaPlayer.setDataSource(getActivity(), Uri.parse(mCurrentSong.getFilePath()));
+//            mediaPlayer.setDataSource(getActivity(), Uri.parse(mSongPath));
+
             mediaPlayer.prepare();
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
@@ -98,6 +117,7 @@ public class FullPlayingFragment extends Fragment {
                     playMusic();
                     backAndForward();
                     setupSeekBar();
+                    nextAndPrevious();
                 }
             });
 
@@ -108,8 +128,7 @@ public class FullPlayingFragment extends Fragment {
 
     }
 
-    void playMusic()
-    {
+    void playMusic(){
         Btn_play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,13 +137,13 @@ public class FullPlayingFragment extends Fragment {
                 {
                     mediaPlayer.pause();
 //                    Btn_play.setBackground(ContextCompat.getDrawable(getApplicationContext(),R.drawable.play_music));
-//                    Btn_play.setImageResource(R.drawable.play_music);
+                    Btn_play.setImageResource(R.drawable.play_music);
                 }
                 else
                 {
                     mediaPlayer.start();
 //                    Btn_play.setBackground(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_pause));
-//                    Btn_play.setImageResource(R.drawable.ic_pause);
+                    Btn_play.setImageResource(R.drawable.ic_pause);
 
                 }
 
@@ -154,6 +173,34 @@ public class FullPlayingFragment extends Fragment {
         });
     }
 
+    void nextAndPrevious()
+    {
+        Btn_previous.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSongPosition=mSongPosition--;
+                setUpMusicPlayer();
+                mediaPlayer.start();
+//                    Btn_play.setBackground(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_pause));
+                    Btn_play.setImageResource(R.drawable.ic_pause);
+
+            }
+        });
+
+        Btn_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSongPosition=mSongPosition++;
+                setUpMusicPlayer();
+                mediaPlayer.start();
+//                    Btn_play.setBackground(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_pause));
+                    Btn_play.setImageResource(R.drawable.ic_pause);
+
+            }
+        });
+    }
+
+
     void setupSeekBar(){
 
         seekbar.setMax(mediaPlayer.getDuration());
@@ -177,7 +224,7 @@ public class FullPlayingFragment extends Fragment {
             }
         });
         timer=new Timer();
-        timer.schedule(new timertask(),0,1000);
+        timer.schedule(new timerTask(),0,1000);
 
     }
 
@@ -190,10 +237,8 @@ public class FullPlayingFragment extends Fragment {
     }
 
 
-
-
-    public class  timertask extends TimerTask{
-                @Override
+    public class timerTask extends TimerTask{
+        @Override
         public void run() {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

@@ -33,6 +33,7 @@ public class SongRepository {
     private Bitmap mMusicImg;
     private Context mContext;
     private Bitmap bitmap = null;
+    private List<Song> mPlayingList;
 
 
 
@@ -86,14 +87,14 @@ public class SongRepository {
                 String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ALBUM));
 
                 mDisplayName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
-                 mArtist= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                 mArtistId= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
-                 mArtistKey = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_KEY));
-                 mAlbum= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                mArtist= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                mArtistId= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
+                mArtistKey = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_KEY));
+                mAlbum= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
 //                 mAlbumId= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-                 mAlbumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-                 mDuration= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                 mTitle= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                mAlbumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+                mDuration= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
+                mTitle= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
 
                 Song song = new Song(file);
                 song.setSongName(name);
@@ -132,8 +133,8 @@ public class SongRepository {
     }
 
     public List<Song> getAlbumSongs(String album){
-List<Song> allSongsList=getAllSongs();
-List<Song> albumSongsList=new ArrayList<>();
+        List<Song> allSongsList=getAllSongs();
+        List<Song> albumSongsList=new ArrayList<>();
 
         for (Song s:allSongsList) {
             if(s.getAlbumName().equals(album))
@@ -156,32 +157,46 @@ List<Song> albumSongsList=new ArrayList<>();
 
     }
 
+    public List<Song> getPlayingList() {
+        return mPlayingList;
+    }
 
-public Bitmap getSongImage(Long albumId) {
+    public void setPlayingList(List<Song> songsList) {
+        mPlayingList = getAllSongs();
+    }
 
-    Uri sArtworkUri = Uri
-            .parse("content://media/external/audio/albumart");
-    Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId);
+    public Bitmap getSongImage(Long albumId) {
+
+        Uri sArtworkUri = Uri
+                .parse("content://media/external/audio/albumart");
+        Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId);
 
 //    Logger.debug(albumArtUri.toString());
 
-    try {
-        bitmap = MediaStore.Images.Media.getBitmap(
-                mContex.getContentResolver(), albumArtUri);
-        bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(
+                    mContex.getContentResolver(), albumArtUri);
+            bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
 
-    } catch (FileNotFoundException exception) {
-        exception.printStackTrace();
-        if(!(albumId%2==0))    bitmap = BitmapFactory.decodeResource(mContex.getResources(), R.drawable.runningmusic);
-        else  bitmap = BitmapFactory.decodeResource(mContex.getResources(), R.drawable.music2);
-    } catch (IOException e) {
+        } catch (FileNotFoundException exception) {
+            exception.printStackTrace();
+            if(!(albumId%2==0))    bitmap = BitmapFactory.decodeResource(mContex.getResources(), R.drawable.runningmusic);
+            else  bitmap = BitmapFactory.decodeResource(mContex.getResources(), R.drawable.music2);
+        } catch (IOException e) {
 
-        e.printStackTrace();
+            e.printStackTrace();
+        }
+        return bitmap;
     }
-    return bitmap;
-}
 
-
+    public Song getSongByPathFile(String pathFile){
+        Song song=new Song();
+        for (Song s:mSongsList) {
+            if(s.getFilePath().equals(pathFile))
+                song= s;
+        }
+        return song;
+    }
 
 
 }

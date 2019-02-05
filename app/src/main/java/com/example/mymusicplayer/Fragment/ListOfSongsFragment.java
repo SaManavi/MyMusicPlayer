@@ -88,7 +88,8 @@ public class ListOfSongsFragment extends Fragment {
 //                    onSongSelected(mCurrentSongOfholder);
                     FragmentManager fm=getFragmentManager();
                     if(fm.findFragmentById(R.id.player_container)==null){
-                        fm.beginTransaction().add(R.id.player_container, PlayingFragment.newInstance(mCurrentSongOfholder.getFilePath()))
+                        fm.beginTransaction()
+                                .add(R.id.player_container, PlayingFragment.newInstance(mCurrentSongOfholder.getFilePath()))
                                 .commit();
 
 
@@ -96,7 +97,7 @@ public class ListOfSongsFragment extends Fragment {
 
 
 
-                    Toast.makeText(getActivity(), "click item", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "click item:"+mCurrentPositionOfHolder, Toast.LENGTH_SHORT).show();
 
                 }
             });
@@ -140,7 +141,6 @@ public class ListOfSongsFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-//            return 5;
             return mSongsList.size();
         }
     }
