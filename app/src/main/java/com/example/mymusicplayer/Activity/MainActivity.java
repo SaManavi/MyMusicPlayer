@@ -7,10 +7,13 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
+import android.widget.TableLayout;
 
+import com.example.mymusicplayer.Fragment.ListOfAlbumsFragment;
 import com.example.mymusicplayer.Fragment.ListOfSongsFragment;
 import com.example.mymusicplayer.Model.Song;
 import com.example.mymusicplayer.R;
+import com.example.mymusicplayer.TabAdapter;
 import com.google.android.material.tabs.TabLayout;
 
 
@@ -18,9 +21,8 @@ public class MainActivity extends AppCompatActivity {
 
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
+    private TabAdapter mTabAdapter;
 
-
-//    private TabAdapter mTabAdapter;
 
 
 //    @Override
@@ -42,50 +44,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.fragment_list_of_items);
 
         mViewPager = findViewById(R.id.viewPager);
-//        mTabLayout = findViewById(R.id.tabLayout);
+        mTabLayout = findViewById(R.id.tablayout);
 
-//        mTabAdapter = new TabAdapter(getSupportFragmentManager());
-//        mTabAdapter.addFragment(new ListOfSongsFragment.newInstance());
-//        mTabAdapter.addFragment(new ListOfSongsFragment.newInstance());
-//        mTabAdapter.addFragment(new ListOfSongsFragment.newInstance());
-//        mViewPager.setAdapter(mTabAdapter);
-//        mTabLayout.setupWithViewPager(mViewPager);
+        mTabAdapter = new TabAdapter(getSupportFragmentManager());
 
-        mViewPager.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()){
-            private Fragment fragment;
+        mTabAdapter.addFragment(new ListOfSongsFragment().newInstance(),"All My Songs");
+        mTabAdapter.addFragment(new ListOfSongsFragment().newInstance(),"All Artists");
+        mTabAdapter.addFragment(new ListOfAlbumsFragment().newInstance(),"All Albums");
+        mViewPager.setAdapter(mTabAdapter);
+        mTabLayout.setupWithViewPager(mViewPager);
 
-            @Override
-            public int getCount() {
-                return 1;
-            }
-
-            @NonNull
-            @Override
-            public Fragment getItem(int position) {
-
-               return  ListOfSongsFragment.newInstance();
-
-//                switch (position){
-//
-//                   case 1:
-//                        fragment=   ListOfSongsFragment.newInstance();
-//break;
-//
-//                   case 2:
-//                       fragment = ListOfSongsFragment.newInstance();
-//                       break;
-////                   case 2:
-//////
-//////                       break;
-//////
-//               }
-//               return fragment;
-            }
-        });
-
+        mViewPager.setOffscreenPageLimit(5);
 
 
     }

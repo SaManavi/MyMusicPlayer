@@ -14,7 +14,7 @@ import com.example.mymusicplayer.R;
 
 import java.util.List;
 
-public class Main2Activity extends AppCompatActivity {
+public class FullPlayingActivity extends AppCompatActivity {
     private static final String EXTERA_SONG_PATH ="com.example.mymusicplayer.Activity.Current_song_filepath";
     private int mCurrentSongIndex;
     private String mSongPath;
@@ -22,7 +22,7 @@ private Song mCurrentSong;
 private List<Song> mPlayList;
 
     public static Intent newIntent(Context c, String filePath){
-        Intent myInt=new Intent(c,Main2Activity.class);
+        Intent myInt=new Intent(c, FullPlayingActivity.class);
         myInt.putExtra(EXTERA_SONG_PATH,filePath);
         return myInt;
     }

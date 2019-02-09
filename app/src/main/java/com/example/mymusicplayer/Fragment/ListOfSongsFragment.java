@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.mymusicplayer.Model.Song;
 import com.example.mymusicplayer.Model.SongRepository;
@@ -57,7 +56,7 @@ public class ListOfSongsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_list_of_songs, container, false);
+        View v = inflater.inflate(R.layout.fragmen_recycler, container, false);
 
         mRecyclerView = v.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -87,18 +86,17 @@ public class ListOfSongsFragment extends Fragment {
                 public void onClick(View v) {
 //                    onSongSelected(mCurrentSongOfholder);
                     FragmentManager fm=getFragmentManager();
-                    if(fm.findFragmentById(R.id.player_container)==null){
+                    if(fm.findFragmentById(R.id.player_container)==null) {
                         fm.beginTransaction()
-                                .add(R.id.player_container, PlayingFragment.newInstance(mCurrentSongOfholder.getFilePath()))
+                                .replace(R.id.player_container, PlayingFragment.newInstance(mCurrentSongOfholder.getFilePath()))
                                 .commit();
-
-
                     }
 
-
-
-                    Toast.makeText(getActivity(), "click item:"+mCurrentPositionOfHolder, Toast.LENGTH_SHORT).show();
-
+                    else{
+                        fm.beginTransaction()
+                                .replace(R.id.player_container, PlayingFragment.newInstance(mCurrentSongOfholder.getFilePath()))
+                                .commit();
+                    }
                 }
             });
         }
@@ -107,7 +105,8 @@ public class ListOfSongsFragment extends Fragment {
             mCurrentSongOfholder=song;
             mSongName.setText(song.getSongName());
             mSongArtist.setText(song.getArtistName());
-            mSongImage.setImageBitmap(SongRepository.getInstance(getActivity()).getSongImage(song.getAlbumId()));
+            mSongImage.setImageBitmap(SongRepository.getInstance(getActivity()).getSongImage(song.getFilePath()));
+//            mSongImage.setImageBitmap(SongRepository.getInstance(getActivity()).getAlbumImage(song.getAlbumId()));
 //            SongRepository.getInstance(getActivity()).updateMusicImage(imgMusic, mCurrentSongOfholder.getImageUri(), imgWidth, imgHeight);
 
 
@@ -123,6 +122,9 @@ public class ListOfSongsFragment extends Fragment {
             mSongsList = mysongsList;
         }
 
+        public void setAdapter(List<Song> mysongsList) {
+            mSongsList = mysongsList;
+        }
 
         @NonNull
         @Override
@@ -147,13 +149,14 @@ public class ListOfSongsFragment extends Fragment {
 
     public void updateUI(){
         SongRepository instance=SongRepository.getInstance(getActivity());
-        List<Song> sl=instance.getAllSongs();
+        List<Song> allSongList=instance.getPlayingList();
 
         if (mySongAdapter == null) {
-            mySongAdapter= new MyAdapter(sl);
+            mySongAdapter= new MyAdapter(allSongList);
             mRecyclerView.setAdapter(mySongAdapter);
         }
         else {
+            mySongAdapter.setAdapter(allSongList);
             mySongAdapter.notifyItemChanged(mCurrentPositionOfHolder);
         }
 

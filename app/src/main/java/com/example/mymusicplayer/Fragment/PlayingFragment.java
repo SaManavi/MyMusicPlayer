@@ -16,8 +16,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.example.mymusicplayer.Activity.Main2Activity;
+import com.example.mymusicplayer.Activity.FullPlayingActivity;
 import com.example.mymusicplayer.Model.Song;
 import com.example.mymusicplayer.Model.SongRepository;
 import com.example.mymusicplayer.R;
@@ -41,20 +42,12 @@ public class PlayingFragment extends Fragment {
     private ImageButton Btn_forward, Btn_play, Btn_backward, Btn_next, Btn_previous;
     private MediaPlayer mediaPlayer;
     private ImageView mPlayingIcon;
-
     private Timer timer;
     private String file;
     private Song mCurrentSong;
-    private int mCurrentSongPosition;
+    private int mCurrentSongIndex;
 
-    public static PlayingFragment newInstance() {
 
-        Bundle args = new Bundle();
-
-        PlayingFragment fragment = new PlayingFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public PlayingFragment() {
         // Required empty public constructor
@@ -76,6 +69,16 @@ public class PlayingFragment extends Fragment {
         super.onCreate(savedInstanceState);
         file=getArguments().getString(ARG_SONG_filePath);
         mCurrentSong= SongRepository.getInstance(getActivity()).getSongByPathFile(file);
+//        mCurrentSong=SongRepository.getInstance(getActivity()).getPlayingList().get(mCurrentSongIndex);
+    }
+
+    @Override
+    public void onPause() {
+        mediaPlayer.stop();
+        super.onPause();
+        timer.cancel();
+        mediaPlayer.release();
+
     }
 
     @Override
@@ -89,17 +92,12 @@ public class PlayingFragment extends Fragment {
         mPlayingIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myInt= Main2Activity.newIntent(getActivity(),file);
+                Intent myInt= FullPlayingActivity.newIntent(getActivity(),file);
                 startActivity(myInt);
-
-
-
 // FragmentManager fm=getFragmentManager();
 //                fm.beginTransaction()
-//                        .replace(R.id.full_container, FullPlayingFragment.newInstance(mCurrentSong.getFilePath(),mCurrentSongPosition))
+//                        .replace(R.id.full_container, FullPlayingFragment.newInstance(mCurrentSong.getFilePath(),mCurrentSongIndex))
 //                        .commit();
-
-
             }
         });
 
@@ -117,8 +115,7 @@ public class PlayingFragment extends Fragment {
         Btn_next = v.findViewById(R.id.Btn_next);
         Btn_previous = v.findViewById(R.id.Btn_previous);
         mPlayingIcon =v.findViewById(R.id.imageView_playing);
-        mPlayingIcon.setImageBitmap(SongRepository.getInstance(getActivity()).getSongImage(mCurrentSong.getAlbumId()));
-
+        mPlayingIcon.setImageBitmap(SongRepository.getInstance(getActivity()).getSongImage(mCurrentSong.getFilePath()));
 
     }
 
@@ -126,8 +123,8 @@ public class PlayingFragment extends Fragment {
         mediaPlayer = new MediaPlayer();
 
         try {
-//            mediaPlayer.setDataSource(getActivity(), Uri.parse(mCurrentSong.getFilePath()));
-            mediaPlayer.setDataSource(getActivity(), Uri.parse(file));
+
+            mediaPlayer.setDataSource(getActivity(), Uri.parse(mCurrentSong.getFilePath()));
             mediaPlayer.prepare();
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
@@ -171,6 +168,15 @@ public class PlayingFragment extends Fragment {
         mStartTime.setText(defineTime(0));
         mEndTime.setText(defineTime(mediaPlayer.getDuration()));
 
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                Toast.makeText(getActivity(), "song finished...", Toast.LENGTH_SHORT).show();
+                mCurrentSongIndex += 1;
+//                mCurrentSong=
+            }
+        });
+
     }
 
     void backAndForward(){
@@ -203,11 +209,13 @@ public class PlayingFragment extends Fragment {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                mediaPlayer.pause();
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                mStartTime.setText(defineTime(mediaPlayer.getCurrentPosition()));
+                mediaPlayer.start();
 
             }
         });
@@ -224,15 +232,19 @@ public class PlayingFragment extends Fragment {
     }
 
     public class  timertask extends TimerTask{
-                @Override
+        @Override
         public void run() {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    seekbar.setProgress(mediaPlayer.getCurrentPosition());
-                    mStartTime.setText(defineTime(mediaPlayer.getCurrentPosition()));
+                    if(mediaPlayer.isPlaying()) {
+                        seekbar.setProgress(mediaPlayer.getCurrentPosition());
+                        mStartTime.setText(defineTime(mediaPlayer.getCurrentPosition()));
+                    }
                 }
+
             });
+
         }
     }
 

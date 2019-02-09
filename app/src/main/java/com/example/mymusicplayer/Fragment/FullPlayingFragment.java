@@ -95,7 +95,7 @@ public class FullPlayingFragment extends Fragment {
         Btn_next = v.findViewById(R.id.Btn_next);
         Btn_previous = v.findViewById(R.id.Btn_previous);
         mFullImageView=v.findViewById(R.id.full_image_View);
-        mFullImageView.setImageBitmap(SongRepository.getInstance(getActivity()).getSongImage(mCurrentSong.getAlbumId()));
+        mFullImageView.setImageBitmap(SongRepository.getInstance(getActivity()).getSongImage(mCurrentSong.getFilePath()));
         mTitle=v.findViewById(R.id.title_of_song);
         mTitle.setText(mCurrentSong.getSongName()+" - "+mCurrentSong.getArtistName()+" - "+mCurrentSong.getAlbumName());
 
@@ -181,8 +181,6 @@ public class FullPlayingFragment extends Fragment {
                 mSongPosition=mSongPosition--;
                 setUpMusicPlayer();
                 mediaPlayer.start();
-//                    Btn_play.setBackground(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_pause));
-                    Btn_play.setImageResource(R.drawable.ic_pause);
 
             }
         });

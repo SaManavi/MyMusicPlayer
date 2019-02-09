@@ -5,6 +5,6 @@
     android:id="@+id/full_frag_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.Main2Activity">
+    tools:context=".Activity.FullPlayingActivity">
 
 </FrameLayout>

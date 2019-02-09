@@ -5,7 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.widget.ImageView;
 
@@ -14,6 +16,8 @@ import com.example.mymusicplayer.R;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class SongRepository {
@@ -57,7 +61,7 @@ public class SongRepository {
 
         Cursor cursor = mContex.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 null,
-                null,
+                selection,
                 null,
                 null);
 
@@ -91,7 +95,7 @@ public class SongRepository {
                 mArtistId= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
                 mArtistKey = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_KEY));
                 mAlbum= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-//                 mAlbumId= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+//                 String mSongIm= cursor.getString(cursor.getColumnIndex(MediaStore.Images.ImageColumns.));
                 mAlbumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
                 mDuration= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
                 mTitle= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
@@ -157,15 +161,24 @@ public class SongRepository {
 
     }
 
+
+
     public List<Song> getPlayingList() {
+        mPlayingList=getAllSongs();
+
+        Collections.sort(mPlayingList, new Comparator<Song>() {
+            @Override
+            public int compare(Song s1 , Song s2) {
+                return s1.getSongName().compareToIgnoreCase(s2.getSongName());
+            }
+        });
         return mPlayingList;
     }
 
-    public void setPlayingList(List<Song> songsList) {
-        mPlayingList = getAllSongs();
+    public void setPlayingList(boolean test) {
     }
 
-    public Bitmap getSongImage(Long albumId) {
+    public Bitmap getAlbumImage(Long  albumId) {
 
         Uri sArtworkUri = Uri
                 .parse("content://media/external/audio/albumart");
@@ -197,6 +210,71 @@ public class SongRepository {
         }
         return song;
     }
+
+
+    public Bitmap getSongImage(String path) {
+
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(path);
+        byte[] data = mmr.getEmbeddedPicture();
+        if (data != null) return BitmapFactory.decodeByteArray(data, 0, data.length);
+        return BitmapFactory.decodeResource(mContex.getResources(), R.drawable.music2);
+
+    }
+
+
+
+
+
+
+
+    public List<Album> getAllAlbums(){
+        List<Album> allAlbumsList=new ArrayList<>();
+
+        String[] projection = new String[] {"DISTINCT "+MediaStore.Audio.AudioColumns.ALBUM};
+//        Cursor cursor = mContex.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+        Cursor cursor = mContex.getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        if (null != cursor) {
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+
+//                MediaStore.Audio.Albums.ALBUM_ID;
+                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ARTIST));
+                String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ALBUM));
+                Long album_Id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID));
+
+//                mAlbum= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+//                Long album_Id  = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ALBUM_ID));
+
+                Album mAlbum=new Album();
+                mAlbum.setAlbumName(album);
+                mAlbum.setAlbumId(album_Id);
+                mAlbum.setAlbumArtist(artist);
+
+//                for (Album a:allAlbumsList) {
+//
+//                    if(!(a.getAlbumName().equals(album)))
+//                        allAlbumsList.add(mAlbum);
+//                }
+                allAlbumsList.add(mAlbum);
+
+                cursor.moveToNext();
+            }
+        }
+
+
+        cursor.close();
+        return allAlbumsList;
+
+    }
+
 
 
 }
