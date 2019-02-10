@@ -20,6 +20,7 @@ import com.example.mymusicplayer.R;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -36,7 +37,7 @@ public class FullPlayingFragment extends Fragment {
     private static String ARG_SONG_INDEX ="com.example.mymusicplayer.Song Position";
     private SeekBar seekbar;
     private TextView mEndTime, mStartTime;
-    private ImageButton Btn_forward, Btn_play, Btn_backward, Btn_next, Btn_previous;
+    private ImageButton Btn_forward, Btn_play, Btn_backward, Btn_next, Btn_previous,Btn_repeat,Btn_shuffle;
     private MediaPlayer mediaPlayer;
 
     private Timer timer;
@@ -46,6 +47,9 @@ public class FullPlayingFragment extends Fragment {
     private ImageView mFullImageView;
     private TextView mTitle;
     private List<Song> playList;
+
+    private boolean mShuffle;
+    private boolean mRepeatOne;
 
 
     public FullPlayingFragment() {
@@ -92,6 +96,8 @@ public class FullPlayingFragment extends Fragment {
         Btn_backward = v.findViewById(R.id.Btn_backward);
         Btn_next = v.findViewById(R.id.Btn_next);
         Btn_previous = v.findViewById(R.id.Btn_previous);
+        Btn_repeat = v.findViewById(R.id.Btn_repeat);
+        Btn_shuffle= v.findViewById(R.id.Btn_shuffle);
         mFullImageView=v.findViewById(R.id.full_image_View);
         mTitle=v.findViewById(R.id.title_of_song);
 
@@ -125,19 +131,20 @@ public class FullPlayingFragment extends Fragment {
                     backAndForward();
                     setupSeekBar();
                     nextAndPrevious();
+                    repeatAndShuffle();
                 }
             });
 
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+
                     functionOfNext();
                 }
             });
 
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(getContext(), "eeeerorrr", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -157,7 +164,6 @@ public class FullPlayingFragment extends Fragment {
                     mediaPlayer.start();
 //                    Btn_play.setBackground(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_pause));
                     Btn_play.setImageResource(R.drawable.ic_pause);
-
                 }
 
             }
@@ -166,7 +172,6 @@ public class FullPlayingFragment extends Fragment {
         mediaPlayer.seekTo(0);
         mStartTime.setText(defineTime(0));
         mEndTime.setText(defineTime(mediaPlayer.getDuration()));
-
     }
 
     void backAndForward()
@@ -186,16 +191,61 @@ public class FullPlayingFragment extends Fragment {
         });
     }
 
+    void repeatAndShuffle()
+    {
+        Btn_shuffle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mShuffle=!mShuffle;
+                if(mShuffle){
+                    mShuffle=true;
+                    Btn_shuffle.setImageResource(R.drawable.ic_pause);
+                    Toast.makeText(getActivity(), "Shuffle:"+mShuffle, Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Btn_shuffle.setImageResource(R.drawable.play_music);
+                    Toast.makeText(getActivity(), "Shuffle:"+mShuffle, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        Btn_repeat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRepeatOne=!mRepeatOne;
+                if(mRepeatOne){
+                    mRepeatOne=true;
+                    Btn_repeat.setImageResource(R.drawable.ic_pause);
+                    Toast.makeText(getActivity(), "Repeat One:"+mRepeatOne, Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Btn_repeat.setImageResource(R.drawable.play_music);
+                    Toast.makeText(getActivity(), "Repeat One:"+mRepeatOne, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+    }
     void nextAndPrevious()
     {
         Btn_previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 mediaPlayer.stop();
-                mCurrentSongIndex = mCurrentSongIndex-1;
+                if(mRepeatOne){mCurrentSongIndex=mCurrentSongIndex+0;}
+
+                else if(mShuffle) {
+                    Random randomIndex = new Random();
+                    mCurrentSongIndex = randomIndex.nextInt(playList.size());
+                }
+
+                else{mCurrentSongIndex = mCurrentSongIndex-1;}
+
+
                 mediaPlayer.reset();
                 setUpMusicPlayer(mCurrentSongIndex);
-
             }
         });
 
@@ -209,8 +259,18 @@ public class FullPlayingFragment extends Fragment {
     }
 
     private void functionOfNext() {
+
         mediaPlayer.stop();
-        mCurrentSongIndex = mCurrentSongIndex+1;
+        if(mRepeatOne){mCurrentSongIndex=mCurrentSongIndex+0;}
+
+        else if(mShuffle) {
+            Random randomIndex = new Random();
+            mCurrentSongIndex = randomIndex.nextInt(playList.size());
+        }
+
+        else{mCurrentSongIndex = mCurrentSongIndex+1;}
+
+
         mediaPlayer.reset();
         setUpMusicPlayer(mCurrentSongIndex);
     }

@@ -27,6 +27,18 @@
         android:scaleType="fitCenter"
         tools:src="@tools:sample/avatars" />
 
+
+    <com.google.android.material.internal.CheckableImageButton
+        android:layout_width="wrap_content"
+        android:id="@+id/Btn_checkableRepeat"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/seekbar"
+        android:layout_marginStart="100dp"
+        android:layout_marginLeft="100dp"
+        android:src="@drawable/nextmusic"
+        android:layout_toRightOf="@+id/Btn_repeat" />
+
+
     <ImageButton
         android:id="@+id/Btn_shuffle"
         android:layout_width="wrap_content"
