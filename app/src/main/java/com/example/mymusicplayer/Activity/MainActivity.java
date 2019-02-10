@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.widget.TableLayout;
 
 import com.example.mymusicplayer.Fragment.ListOfAlbumsFragment;
+import com.example.mymusicplayer.Fragment.ListOfArtistsFragment;
 import com.example.mymusicplayer.Fragment.ListOfSongsFragment;
 import com.example.mymusicplayer.Model.Song;
 import com.example.mymusicplayer.R;
@@ -52,8 +53,11 @@ public class MainActivity extends AppCompatActivity {
         mTabAdapter = new TabAdapter(getSupportFragmentManager());
 
         mTabAdapter.addFragment(new ListOfSongsFragment().newInstance(),"All My Songs");
-        mTabAdapter.addFragment(new ListOfSongsFragment().newInstance(),"All Artists");
+        mTabAdapter.addFragment(new ListOfArtistsFragment().newInstance(),"All Artists");
         mTabAdapter.addFragment(new ListOfAlbumsFragment().newInstance(),"All Albums");
+        mTabAdapter.addFragment(new ListOfAlbumsFragment().newInstance(),"My Play List");
+        mTabAdapter.addFragment(new ListOfAlbumsFragment().newInstance(),"My Search List");
+
         mViewPager.setAdapter(mTabAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 

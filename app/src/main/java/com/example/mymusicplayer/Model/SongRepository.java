@@ -55,7 +55,16 @@ public class SongRepository {
         return instance;
     }
 
-    public List<Song> getAllSongs(){
+    public Song getSongByPathFile(String pathFile){
+        Song song=new Song();
+        for (Song s:mSongsList) {
+            if(s.getFilePath().equals(pathFile))
+                song= s;
+        }
+        return song;
+    }
+
+    private List<Song> getAllSongs(){
         mSongsList = new ArrayList<>();
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
 
@@ -117,6 +126,7 @@ public class SongRepository {
         return mSongsList;
 
     }
+
     public void updateMusicImage(ImageView imageView, Uri albumArtUri, int width, int height) {
         try {
             mMusicImg = MediaStore.Images.Media.getBitmap(
@@ -161,8 +171,6 @@ public class SongRepository {
 
     }
 
-
-
     public List<Song> getPlayingList() {
         mPlayingList=getAllSongs();
 
@@ -184,8 +192,6 @@ public class SongRepository {
                 .parse("content://media/external/audio/albumart");
         Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId);
 
-//    Logger.debug(albumArtUri.toString());
-
         try {
             bitmap = MediaStore.Images.Media.getBitmap(
                     mContex.getContentResolver(), albumArtUri);
@@ -202,16 +208,6 @@ public class SongRepository {
         return bitmap;
     }
 
-    public Song getSongByPathFile(String pathFile){
-        Song song=new Song();
-        for (Song s:mSongsList) {
-            if(s.getFilePath().equals(pathFile))
-                song= s;
-        }
-        return song;
-    }
-
-
     public Bitmap getSongImage(String path) {
 
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
@@ -222,17 +218,10 @@ public class SongRepository {
 
     }
 
-
-
-
-
-
-
     public List<Album> getAllAlbums(){
         List<Album> allAlbumsList=new ArrayList<>();
 
-        String[] projection = new String[] {"DISTINCT "+MediaStore.Audio.AudioColumns.ALBUM};
-//        Cursor cursor = mContex.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+//        String[] projection = new String[] {"DISTINCT "+MediaStore.Audio.AudioColumns.ALBUM};  ????????????????//
         Cursor cursor = mContex.getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                 null,
                 null,
@@ -245,36 +234,69 @@ public class SongRepository {
 
             while (!cursor.isAfterLast()) {
 
-//                MediaStore.Audio.Albums.ALBUM_ID;
                 String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ARTIST));
                 String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ALBUM));
                 Long album_Id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID));
-
-//                mAlbum= cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-//                Long album_Id  = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ALBUM_ID));
 
                 Album mAlbum=new Album();
                 mAlbum.setAlbumName(album);
                 mAlbum.setAlbumId(album_Id);
                 mAlbum.setAlbumArtist(artist);
 
-//                for (Album a:allAlbumsList) {
-//
-//                    if(!(a.getAlbumName().equals(album)))
-//                        allAlbumsList.add(mAlbum);
-//                }
                 allAlbumsList.add(mAlbum);
 
                 cursor.moveToNext();
             }
         }
-
-
         cursor.close();
-        return allAlbumsList;
 
+        Collections.sort(allAlbumsList, new Comparator<Album>() {
+            @Override
+            public int compare(Album s1 , Album s2) {
+                return s1.getAlbumName().compareToIgnoreCase(s2.getAlbumName());
+            }
+        });
+
+        return allAlbumsList;
     }
 
+    public List<Artist> getAllArtits(){
+        List<Artist> allArtistsList=new ArrayList<>();
 
+        Cursor cursor = mContex.getContentResolver().query(MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        if (null != cursor) {
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+
+                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ARTIST));
+                String artist_Id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Artists._ID));
+//                String artistX = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.));
+
+                Artist mArtist=new Artist();
+                mArtist.setArtistName(artist);
+                mArtist.setArtistId(artist_Id);
+
+                allArtistsList.add(mArtist);
+
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+
+        Collections.sort(allArtistsList, new Comparator<Artist>() {
+            @Override
+            public int compare(Artist s1 , Artist s2) {
+                return s1.getArtistName().compareToIgnoreCase(s2.getArtistName());
+            }
+        });
+        return allArtistsList;
+    }
 
 }

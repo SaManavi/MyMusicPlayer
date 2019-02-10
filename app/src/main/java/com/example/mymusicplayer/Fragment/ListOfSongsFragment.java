@@ -78,7 +78,6 @@ public class ListOfSongsFragment extends Fragment {
             mSongName = itemView.findViewById(R.id.song_name_of_viewholder);
             mSongArtist = itemView.findViewById(R.id.song_artist_of_viewholder);
             mSongImage = itemView.findViewById(R.id.song_image_of_viewholder);
-            mCurrentPositionOfHolder = getAdapterPosition();
 
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -93,6 +92,7 @@ public class ListOfSongsFragment extends Fragment {
                     }
 
                     else{
+                        PlayingFragment.mediaPlayer.stop();
                         fm.beginTransaction()
                                 .replace(R.id.player_container, PlayingFragment.newInstance(mCurrentSongOfholder.getFilePath()))
                                 .commit();
@@ -102,6 +102,7 @@ public class ListOfSongsFragment extends Fragment {
         }
 
         public void bind(Song song) {
+
             mCurrentSongOfholder=song;
             mSongName.setText(song.getSongName());
             mSongArtist.setText(song.getArtistName());
@@ -130,7 +131,7 @@ public class ListOfSongsFragment extends Fragment {
         @Override
         public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater myInf = LayoutInflater.from(getActivity());
-            View v = myInf.inflate(R.layout.list_item_view, parent, false);
+            View v = myInf.inflate(R.layout.list_item_song_view, parent, false);
             MyHolder mh = new MyHolder(v);
             return mh;
 

@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.mymusicplayer.Model.Album;
+import com.example.mymusicplayer.Model.Artist;
 import com.example.mymusicplayer.Model.Song;
 import com.example.mymusicplayer.Model.SongRepository;
 import com.example.mymusicplayer.R;
@@ -17,7 +18,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -28,12 +29,12 @@ public class ListOfArtistsFragment extends Fragment {
 
     protected RecyclerView mRecyclerView;
     protected int mCurrentPositionOfHolder;
-    public MyAdapter myAlbumAdapter;
+    public MyAdapter myArtistAdapter;
 
     private Callbacks mCallbacks;
 
     public interface Callbacks {
-        void onAlbumSelected(Song song);
+        void onArtistSelected(Song song);
     }
 
     public ListOfArtistsFragment() {
@@ -58,7 +59,7 @@ public class ListOfArtistsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragmen_recycler, container, false);
 
         mRecyclerView = v.findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         updateUI();
         return v;
@@ -66,17 +67,15 @@ public class ListOfArtistsFragment extends Fragment {
 
 
     protected class MyHolder extends RecyclerView.ViewHolder {
-        private ImageView mAlbumImage;
-        private TextView mAlbumName;
-        private TextView mAlbumArtist;
-        private Album mCurrentAlbumOfholder;
+        private ImageView mArtistImage;
+        private TextView mArtistName;
+        private Artist mCurrentArtistOfholder;
 
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);
-            mAlbumName = itemView.findViewById(R.id.album_name_of_viewholder);
-            mAlbumArtist = itemView.findViewById(R.id.album_artist_of_viewholder);
-            mAlbumImage = itemView.findViewById(R.id.album_image_of_viewholder);
+            mArtistName = itemView.findViewById(R.id.artist_name_of_viewholder);
+            mArtistImage = itemView.findViewById(R.id.artist_image_of_viewholder);
             mCurrentPositionOfHolder = getAdapterPosition();
 
 
@@ -100,11 +99,11 @@ public class ListOfArtistsFragment extends Fragment {
             });
         }
 
-        public void bind(Album album) {
-            mCurrentAlbumOfholder=album;
-            mAlbumName.setText(album.getAlbumName());
-            mAlbumArtist.setText(album.getAlbumArtist());
-            mAlbumImage.setImageBitmap(SongRepository.getInstance(getActivity()).getAlbumImage(album.getAlbumId()));
+        public void bind(Artist artist) {
+            mCurrentArtistOfholder=artist;
+            mArtistName.setText(artist.getArtistName());
+            mArtistImage.setImageResource(R.drawable.singer);
+//            mArtistImage.setImageBitmap(SongRepository.getInstance(getActivity()).getAlbumImage(album.getAlbumId()));
 //            mSongImage.setImageBitmap(SongRepository.getInstance(getActivity()).getAlbumImage(song.getAlbumId()));
 //            SongRepository.getInstance(getActivity()).updateMusicImage(imgMusic, mCurrentSongOfholder.getImageUri(), imgWidth, imgHeight);
 
@@ -115,10 +114,10 @@ public class ListOfArtistsFragment extends Fragment {
 
     protected class MyAdapter extends RecyclerView.Adapter<MyHolder> {
 
-        private List<Album> mAlbumsList;
+        private List<Artist> mArtistsList;
 
-        public MyAdapter(List<Album> myAlbumsList) {
-            mAlbumsList = myAlbumsList;
+        public MyAdapter(List<Artist> myArtistsList) {
+            mArtistsList = myArtistsList;
         }
 
 
@@ -126,7 +125,7 @@ public class ListOfArtistsFragment extends Fragment {
         @Override
         public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater myInf = LayoutInflater.from(getActivity());
-            View v = myInf.inflate(R.layout.list_item_album_view, parent, false);
+            View v = myInf.inflate(R.layout.list_item_artist_view, parent, false);
             MyHolder mh = new MyHolder(v);
             return mh;
 
@@ -134,25 +133,25 @@ public class ListOfArtistsFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull MyHolder holder, int position) {
-            holder.bind(mAlbumsList.get(position));
+            holder.bind(mArtistsList.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return mAlbumsList.size();
+            return mArtistsList.size();
         }
     }
 
     public void updateUI(){
         SongRepository instance=SongRepository.getInstance(getActivity());
-        List<Album> allAlbumsList=instance.getAllAlbums();
+        List<Artist> allArtistsList=instance.getAllArtits();
 
-        if (myAlbumAdapter == null) {
-            myAlbumAdapter= new MyAdapter(allAlbumsList);
-            mRecyclerView.setAdapter(myAlbumAdapter);
+        if (myArtistAdapter == null) {
+            myArtistAdapter = new MyAdapter(allArtistsList);
+            mRecyclerView.setAdapter(myArtistAdapter);
         }
         else {
-            myAlbumAdapter.notifyItemChanged(mCurrentPositionOfHolder);
+            myArtistAdapter.notifyItemChanged(mCurrentPositionOfHolder);
         }
 
     }

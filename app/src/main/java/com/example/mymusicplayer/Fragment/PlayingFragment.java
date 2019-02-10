@@ -37,10 +37,11 @@ import java.util.TimerTask;
 public class PlayingFragment extends Fragment {
 
     private static String ARG_SONG_filePath ="com.example.mymusicplayer.file_path_Of_music";
+    private static String ARG_SONG_index ="com.example.mymusicplayer.song_index";
     private SeekBar seekbar;
     private TextView mEndTime, mStartTime;
     private ImageButton Btn_forward, Btn_play, Btn_backward, Btn_next, Btn_previous;
-    private MediaPlayer mediaPlayer;
+    public static MediaPlayer mediaPlayer;
     private ImageView mPlayingIcon;
     private Timer timer;
     private String file;
@@ -68,8 +69,9 @@ public class PlayingFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         file=getArguments().getString(ARG_SONG_filePath);
+
         mCurrentSong= SongRepository.getInstance(getActivity()).getSongByPathFile(file);
-//        mCurrentSong=SongRepository.getInstance(getActivity()).getPlayingList().get(mCurrentSongIndex);
+        mCurrentSongIndex=SongRepository.getInstance(getActivity()).getPlayingList().indexOf(mCurrentSong);
     }
 
     @Override
@@ -92,6 +94,7 @@ public class PlayingFragment extends Fragment {
         mPlayingIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mediaPlayer.stop();
                 Intent myInt= FullPlayingActivity.newIntent(getActivity(),file);
                 startActivity(myInt);
 // FragmentManager fm=getFragmentManager();
@@ -209,6 +212,7 @@ public class PlayingFragment extends Fragment {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+
                 mediaPlayer.pause();
             }
 

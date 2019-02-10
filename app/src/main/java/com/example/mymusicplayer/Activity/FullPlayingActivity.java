@@ -16,6 +16,7 @@ import java.util.List;
 
 public class FullPlayingActivity extends AppCompatActivity {
     private static final String EXTERA_SONG_PATH ="com.example.mymusicplayer.Activity.Current_song_filepath";
+    private static final String EXTERA_SONG_INDEX ="com.example.mymusicplayer.Activity.Current_song_index";
     private int mCurrentSongIndex;
     private String mSongPath;
 private Song mCurrentSong;
@@ -32,7 +33,8 @@ private List<Song> mPlayList;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         mSongPath =  getIntent().getStringExtra(EXTERA_SONG_PATH);
-        mPlayList= SongRepository.getInstance(this).getAllSongs();
+        mCurrentSongIndex=getIntent().getIntExtra(EXTERA_SONG_INDEX,0);
+        mPlayList= SongRepository.getInstance(this).getPlayingList();
         mCurrentSong=SongRepository.getInstance(this).getSongByPathFile(mSongPath);
 
 
