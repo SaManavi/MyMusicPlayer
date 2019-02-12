@@ -85,7 +85,7 @@ public class ListOfAlbumsFragment extends Fragment {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-////                    onSongSelected(mCurrentSongOfholder);
+//                    onSongSelected(mCurrentSongOfholder);
 //                    FragmentManager fm=getFragmentManager();
 //                    if(fm.findFragmentById(R.id.player_container)==null) {
 //                        fm.beginTransaction()

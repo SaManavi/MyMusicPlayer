@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         mViewPager.setAdapter(mTabAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
+        mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         mViewPager.setOffscreenPageLimit(5);
 
